@@ -9,10 +9,28 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/manrope": "^0.2.2",
+    "@kanzitelli/if-component": "^0.3.0",
+    "@react-native-async-storage/async-storage": "^1.17.11",
+    "@shopify/flash-list": "^1.4.0",
     "expo": "~47.0.9",
+    "expo-font": "~11.0.1",
+    "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
+    "expo-updates": "~0.15.6",
+    "formik": "^2.2.9",
+    "i18n-js": "^4.2.2",
+    "lottie-react-native": "5.1.4",
     "react": "18.1.0",
-    "react-native": "0.70.5"
+    "react-native": "0.70.5",
+    "react-native-floating-action": "^1.22.0",
+    "react-native-gesture-handler": "~2.8.0",
+    "react-native-notificated": "^0.0.1-beta.2",
+    "react-native-reanimated": "~2.12.0",
+    "react-native-responsive-screen": "^1.4.2",
+    "react-native-switch-with-icons": "^3.0.1",
+    "react-native-ui-lib": "^6.27.3",
+    "zustand": "^4.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"
