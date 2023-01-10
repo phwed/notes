@@ -11,11 +11,21 @@ export const NOTES = [
     color: COLORS.PRIMARY,
   },
   {
+    id: 7,
+    type: "text",
+    createdAt: "Sun 8:40",
+    title: "My Love",
+    description:
+      "So she said whats the problem baby, whats the problem i dont know well maybe am in love, i think about it everytime think about cant stop thinking bout it, how much longer will it take to cure this. Just to cure this cause i cant ignore it it is love.",
+    label: "label",
+    color: COLORS.GREEN,
+  },
+  {
     id: 2,
     type: "image",
     createdAt: "Sun 8:40",
     title: "Image Type",
-    description: "This is an image note",
+    description: "This is an amazing girl with the nicest smile. She is so pretty!",
     label: "label",
     color: "",
     image:
@@ -60,5 +70,4 @@ export const NOTE_TYPE = {
   IMAGE: "image",
   CHECKLIST: "checklist",
   DOODLE: "doodle",
-  color: "",
 };

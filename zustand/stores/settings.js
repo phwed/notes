@@ -1,7 +1,8 @@
 import create from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MMKV } from "react-native-mmkv";
 import { ACTION_TYPES } from "../../config/actionTypes";
+import { zustandStorage } from "../middlewares/zustandStorage";
 
 let store = (set, get) => ({
   // initial state
@@ -23,8 +24,7 @@ let store = (set, get) => ({
 
 store = persist(store, {
   name: "note_settings",
-  storage: createJSONStorage(() => AsyncStorage),
+  storage: createJSONStorage(() => zustandStorage),
 });
 
 export const useSettingsStore = create(store);
-    

@@ -2,7 +2,7 @@ export const COLORS = {
   PRIMARY: "#4E33FF",
   SECONDARY: "#FFD633",
   HOT_PINK: "#AE3B76",
-  GREEN: "#05EBAF",
+  GREEN: "#004C00",
   ORANGE: "#FF7746",
   DARK: "#0F121B",
   CARD_DARK: "#171C26",

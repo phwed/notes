@@ -6,6 +6,7 @@ import {
   Spacings,
   ThemeManager,
 } from "react-native-ui-lib";
+import { DarkTheme, DefaultTheme, Theme } from "@react-navigation/native";
 import { COLORS } from "./colors";
 
 // =============
@@ -24,7 +25,6 @@ const themes = {
   light: {
     screenBG: COLORS.WHITE,
     textColor: COLORS.TEXT_DARK,
-
   },
   dark: {
     screenBG: COLORS.DARK,
@@ -58,13 +58,11 @@ export const configureDesignSystem = async (colorMode) => {
     gridGutter: 16,
   });
 
-
-
   ThemeManager.setComponentTheme("Card", {
     borderRadius: 10,
-    backgroundColor: colorMode === "dark" ? COLORS.CARD_DARK : COLORS.CARD_LIGHT,
+    backgroundColor:
+      colorMode === "dark" ? COLORS.CARD_DARK : COLORS.CARD_LIGHT,
   });
-
 
   // with a dynamic function
   ThemeManager.setComponentTheme("Button", (props, context) => {
@@ -78,10 +76,16 @@ export const configureDesignSystem = async (colorMode) => {
 
     if (props.custom) {
       return {
-          color: COLORS.TEXT_LIGHT
-      }
+        color: COLORS.TEXT_LIGHT,
+      };
     }
 
+    if (props.intro) {
+      return {
+        backgroundColor: COLORS.WARNING,
+        color: COLORS.TEXT_DARK,
+      };
+    }
   });
 };
 
@@ -102,4 +106,43 @@ export const getStatusBarStyle = (colorMode) => {
     default:
       return "auto";
   }
+};
+
+export const getNavigationTheme = (colorMode) => {
+  const darkTheme = {
+    dark: true,
+    colors: {
+      ...DarkTheme.colors,
+      primary: COLORS.PRIMARY,
+      background: COLORS.DARK,
+      card: COLORS.CARD_DARK,
+      text: COLORS.TEXT_LIGHT,
+      border: COLORS.DARK,
+      notification: COLORS.PRIMARY,
+      sheet: COLORS.CARD_DARK
+    },
+  };
+
+  const lightTheme = {
+    dark: false,
+    colors: {
+      ...DarkTheme.colors,
+      primary: COLORS.PRIMARY,
+      background: COLORS.WHITE,
+      card: COLORS.CARD_LIGHT,
+      text: COLORS.TEXT_DARK,
+      border: COLORS.WHITE,
+      notification: COLORS.PRIMARY,
+      sheet: COLORS.WARNING
+    },
+  };
+
+  switch (colorMode) {
+    case "dark":
+      return darkTheme;
+    case "light":
+      return lightTheme;
+  }
+
+  return DefaultTheme;
 };

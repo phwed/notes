@@ -13,11 +13,12 @@ import {
 } from "react-native-ui-lib";
 import { StatusBar, Platform, ScrollView, LayoutAnimation } from "react-native";
 import SwitchWithIcons from "react-native-switch-with-icons";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import { FloatingAction } from "react-native-floating-action";
 import { createNotifications } from "react-native-notificated";
 import { MasonryFlashList } from "@shopify/flash-list";
-import { widthPercentageToDP } from "react-native-responsive-screen";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 // zustand
 import { useSettingsStore } from "../zustand/stores/settings";
@@ -25,6 +26,7 @@ import { useSettingsStore } from "../zustand/stores/settings";
 // assets
 import moon from "../assets/moon.png";
 import sun from "../assets/sun.png";
+import logo from "../assets/icon.png";
 
 // custom
 import { Input } from "../components/forms";
@@ -36,17 +38,46 @@ import { NOTES } from "../constants/notes";
 import { GridEmptyComponent } from "../components/home/GridEmptyComponent";
 import { GridItem } from "../components/home/GridItem";
 import { If } from "@kanzitelli/if-component";
+import { useTheme } from "@react-navigation/native";
+import { useAuthStore } from "../zustand/stores/auth";
+import { NOTE_TYPE } from "../constants/notes";
+import { ROUTES } from "../config/routes";
 
 const { useNotifications } = createNotifications();
 
-const Home = () => {
-  const { changeTheme, resetActionType } = useSettingsStore();
+const Home = (props) => {
+  // HOOKS
+  const { changeTheme } = useSettingsStore();
   const appTheme = useSettingsStore((state) => state.appTheme);
+  const goToAuth = useAuthStore((state) => state.goToAuth);
   const { notify } = useNotifications();
-  const [loading, setLoading] = React.useState(false);
-  const list = React.useRef(null);
+  const { colors } = useTheme();
 
+  // STATES
+  const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState(NOTES);
+  const [filter, setFilter] = React.useState("");
+
+  // REFS
+  const list = React.useRef(null);
+  const bottomSheetModalRef = React.useRef(null);
+
+  // MEMOS
+  const snapPoints = React.useMemo(() => ["50%", "50%"], []);
+
+  // CALLBACKS
+  const handlePresentModalPress = React.useCallback(() => {
+    bottomSheetModalRef.current?.present();
+  }, []);
+
+  const handleCloseModalPress = React.useCallback(() => {
+    bottomSheetModalRef.current?.close();
+  }, []);
+
+  // FUNCTIONS
+  const filteredData = data.filter((item) =>
+    item.type.toLowerCase().includes(filter)
+  );
 
   const removeItem = (item) => {
     setData(
@@ -54,12 +85,16 @@ const Home = () => {
         return dataItem !== item;
       })
     );
-
-    // This must be called before `LayoutAnimation.configureNext` in order for the animation to run properly.
+notify('success', {
+  params:{
+    title:"Note deleted successfully"
+  }
+})
     list.current?.prepareForLayoutAnimationRender();
-    // After removing the item, we can start the animation.
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
   };
+
+  // SIDEEFFECTS
 
   return (
     <Container
@@ -70,27 +105,36 @@ const Home = () => {
     >
       {/* HEADER */}
       <View spread row centerV paddingH-s5 marginB-s2>
-        <Text subHeading textColor>
+        <Text subHeading style={{ color: colors.text }}>
           Notes
         </Text>
 
-        <SwitchWithIcons
-          value={appTheme === "dark" ? true : false}
-          onValueChange={changeTheme}
-          icon={{
-            true: moon,
-            false: sun,
-          }}
-          trackColor={{
-            true: COLORS.CARD_DARK,
-            false: COLORS.GRAY,
-          }}
-          thumbColor={{
-            true: COLORS.WHITE,
-            false: COLORS.WHITE,
-          }}
-          iconColor={{ true: COLORS.DARK, false: COLORS.DARK }}
-        />
+        <View row center>
+          <TouchableOpacity padding-s3 marginR-s2>
+            <MaterialCommunityIcons
+              name="delete-off-outline"
+              color={colors.text}
+              size={25}
+            />
+          </TouchableOpacity>
+          <SwitchWithIcons
+            value={appTheme === "dark" ? true : false}
+            onValueChange={changeTheme}
+            icon={{
+              true: moon,
+              false: sun,
+            }}
+            trackColor={{
+              true: COLORS.CARD_DARK,
+              false: COLORS.GRAY,
+            }}
+            thumbColor={{
+              true: COLORS.WHITE,
+              false: COLORS.WHITE,
+            }}
+            iconColor={{ true: COLORS.DARK, false: COLORS.DARK }}
+          />
+        </View>
       </View>
 
       {/* SEARCH */}
@@ -100,12 +144,15 @@ const Home = () => {
         marginH-s3
         marginT-s3
         padding-s1
-        bg-cardBg
-        style={{ overflow: "hidden", borderRadius: 1000 }}
+        style={{
+          overflow: "hidden",
+          borderRadius: 1000,
+          backgroundColor: colors.card,
+        }}
       >
-        <TouchableOpacity paddingL-10>
-          <MaterialCommunityIcons
-            name="tune-vertical"
+        <TouchableOpacity paddingL-10 onPress={handlePresentModalPress}>
+          <FontAwesome
+            name="sliders"
             size={25}
             color={appTheme === "dark" ? COLORS.TEXT_LIGHT : COLORS.TEXT_DARK}
           />
@@ -114,10 +161,10 @@ const Home = () => {
           <Input placeholder="Search your notes" />
         </View>
         <Avatar
-          source={{
-            uri: "https://lh3.googleusercontent.com/ogw/AOh-ky106MrUOL4BTaWP0uHpHcTEZrIjpsYSeFD-MdXDB7s=s64-c-mo",
-          }}
+          source={logo}
           size={45}
+          onPress={() => goToAuth()}
+          backgroundColor={COLORS.WARNING}
         />
       </View>
       {/* BODY */}
@@ -125,12 +172,12 @@ const Home = () => {
         _={loading}
         _then={<View flex padding-page center></View>}
         _else={
-          <View flex  paddingT-s5 >
+          <View flex paddingT-s5>
             <MasonryFlashList
               showsVerticalScrollIndicator={false}
               estimatedItemSize={200}
               ref={list}
-              data={data}
+              data={filteredData}
               numColumns={2}
               keyExtractor={(item) => {
                 return item.id.toString();
@@ -142,32 +189,137 @@ const Home = () => {
                   item={item}
                   index={index}
                   onDelete={() => removeItem(item)}
+                  onMove={() => {
+                    removeItem(item);
+                  }}
+                  onItemPress={() => {
+                    switch (item.type) {
+                      case NOTE_TYPE.TEXT:
+                        props.navigation.navigate(ROUTES.TEXT_NOTES);
+                        break;
+                      case NOTE_TYPE.DOODLE:
+                        props.navigation.navigate(ROUTES.DOODLES);
+                        break;
+                      case NOTE_TYPE.IMAGE:
+                        props.navigation.navigate(ROUTES.IMAGE_NOTES);
+                        break;
+                      case NOTE_TYPE.CHECKLIST:
+                        props.navigation.navigate(ROUTES.CHECKLIST);
+                        break;
+                      default:
+                        break;
+                    }
+                  }}
                 />
               )}
               contentContainerStyle={{
-                paddingBottom:20,
+                paddingBottom: 20,
                 paddingLeft: Spacings.s3,
               }}
             />
           </View>
         }
       />
+
+      {/* BOTTOM SHEET */}
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        enableDismissOnClose
+        handleStyle={{
+          backgroundColor: colors.sheet,
+          borderTopRightRadius: BorderRadiuses.br50,
+          borderTopLeftRadius: BorderRadiuses.br50,
+        }}
+      >
+        <View flex style={{ backgroundColor: colors.sheet }} padding-page>
+          <View paddingV-s3 paddingH-s1 marginB-s2>
+            <Text textColor style={{ fontSize: 25 }}>
+              Filter
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={{
+              backgroundColor: filter === "" ? COLORS.SUCCESS : null,
+            }}
+            paddingV-s3
+            paddingH-s5
+            br30
+            marginB-s2
+            onPress={() => {
+              setFilter("");
+              handleCloseModalPress();
+              list.current?.prepareForLayoutAnimationRender();
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+            }}
+          >
+            <Text
+              textColor
+              style={{
+                fontSize: 18,
+                color: filter === "" ? COLORS.TEXT_LIGHT : colors.text,
+              }}
+            >
+              All Notes
+            </Text>
+          </TouchableOpacity>
+
+          {Object.keys(NOTE_TYPE).map((i, _) => (
+            <TouchableOpacity
+              style={{
+                backgroundColor:
+                  NOTE_TYPE[i] === filter ? COLORS.SUCCESS : null,
+              }}
+              paddingV-s3
+              paddingH-s5
+              br30
+              key={_}
+              marginB-s2
+              onPress={() => {
+                setFilter(NOTE_TYPE[i]);
+                handleCloseModalPress();
+                list.current?.prepareForLayoutAnimationRender();
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+              }}
+            >
+              <Text
+                textColor
+                style={{
+                  fontSize: 18,
+                  color:
+                    NOTE_TYPE[i] === filter ? COLORS.TEXT_LIGHT : colors.text,
+                }}
+              >
+                {NOTE_TYPE[i] === NOTE_TYPE.TEXT
+                  ? "Text Notes"
+                  : NOTE_TYPE[i] === NOTE_TYPE.IMAGE
+                  ? "Image Notes"
+                  : NOTE_TYPE[i] === NOTE_TYPE.DOODLE
+                  ? "Doodles"
+                  : "Checklist"}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </BottomSheetModal>
+
       {/* FLOATING MENU */}
       <FloatingAction
         actions={ACTIONS}
         onPressItem={(name) => {
           switch (name) {
             case BUTTON.TEXT_NOTE:
-              alert("text note");
+              props.navigation.navigate(ROUTES.TEXT_NOTES);
               break;
             case BUTTON.DRAW_NOTES:
-              alert("draw note");
+              props.navigation.navigate(ROUTES.DOODLES);
               break;
             case BUTTON.PHOTO_NOTE:
-              alert("photo note");
+              props.navigation.navigate(ROUTES.IMAGE_NOTES);
               break;
             case BUTTON.CHECKLIST:
-              alert("check list");
+              props.navigation.navigate(ROUTES.CHECKLIST);
               break;
             default:
               break;

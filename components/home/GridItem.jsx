@@ -5,39 +5,104 @@ import {
   Spacings,
   BorderRadiuses,
   AnimatedImage,
-  ActivityIndicator,
   TouchableOpacity,
   Checkbox,
 } from "react-native-ui-lib";
-import { StyleSheet, Image, Pressable } from "react-native";
+import {
+  StyleSheet,
+  Image,
+  Pressable,
+  ActivityIndicator,
+  PanResponder,
+} from "react-native";
 import { If } from "@kanzitelli/if-component";
 import { NOTES, NOTE_TYPE } from "../../constants/notes";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-import Animated, { ZoomInEasyUp } from "react-native-reanimated";
+import Animated, {
+  BounceInUp,
+  withSpring,
+  useSharedValue,
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+} from "react-native-reanimated";
+import { PanGestureHandler, State } from "react-native-gesture-handler";
 import { AntDesign } from "@expo/vector-icons";
 
 import { useSettingsStore } from "../../zustand/stores/settings";
 import { COLORS } from "../../config/colors";
 
-export const GridItem = ({ item, onDelete, ...props }) => {
+export const GridItem = ({
+  item,
+  onDelete,
+  onItemPress,
+  onMove,
+  index,
+  deleteMode,
+}) => {
   const appTheme = useSettingsStore((state) => state.appTheme);
 
   const [selected, setSelected] = React.useState(0);
   const [showDelete, setShowDelete] = React.useState(false);
 
+  const pressed = useSharedValue(false);
+  const startingPosition = 1;
+  const x = useSharedValue(startingPosition);
+  const y = useSharedValue(startingPosition);
+
+  const eventHandler = useAnimatedGestureHandler({
+    onStart: (event, ctx) => {
+      pressed.value = true;
+      ctx.startX = x.value;
+      ctx.startY = y.value;
+    },
+
+    onActive: (event, ctx) => {
+      x.value = ctx.startX + event.translationX;
+      y.value = ctx.startY + event.translationY;
+    },
+
+    onEnd: (event, ctx) => {
+      pressed.value = false;
+      x.value = withSpring(startingPosition);
+      y.value = withSpring(startingPosition);
+    },
+  });
+
+  const uas = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: pressed.value ? 1.7 : 1 }],
+      transform: [{ translateX: x.value }, { translateY: y.value }],
+    };
+  });
+
   return (
-    <Animated.View entering={ZoomInEasyUp}>
+    // <PanGestureHandler
+    //   onGestureEvent={ eventHandler}
+    //   onHandlerStateChange={({ nativeEvent }) => {
+    //     if (nativeEvent.state === State.END) {
+    //     //  deleteMode && onMove();
+    //     }
+    //   }}
+    // >
+    <Animated.View entering={BounceInUp} style={[uas]}>
       <Pressable
         onLongPress={() => {
           setSelected(item.id);
           setShowDelete(true);
         }}
+        onPress={() => {
+          setShowDelete(false);
+          if (!showDelete) {
+            onItemPress();
+          }
+        }}
+        style={({ pressed }) => [{ opacity: pressed ? 0.8 : 1 }]}
       >
         <View
-          key={props.index}
+          key={index}
           br30
           style={[
             styles.container,
@@ -59,6 +124,11 @@ export const GridItem = ({ item, onDelete, ...props }) => {
               <AnimatedImage
                 source={{ uri: item?.image }}
                 style={styles.image}
+                containerStyle={{
+                  backgroundColor: COLORS.WARNING,
+                  borderRadius: BorderRadiuses.br30,
+                }}
+                loader={<ActivityIndicator color={COLORS.INFO} />}
               />
             }
           />
@@ -106,6 +176,9 @@ export const GridItem = ({ item, onDelete, ...props }) => {
               _={item?.description}
               _then={
                 <Text
+                  numberOfLines={
+                    item.type === (NOTE_TYPE.IMAGE || NOTE_TYPE.DOODLE) ? 2 : 6
+                  }
                   style={[
                     styles.description,
                     {
@@ -173,7 +246,9 @@ export const GridItem = ({ item, onDelete, ...props }) => {
               <Text
                 style={[
                   styles.date,
-                  { color: item?.color ? COLORS.TEXT_LIGHT : COLORS.TEXT_DARK },
+                  {
+                    color: item?.color ? COLORS.TEXT_LIGHT : COLORS.TEXT_DARK,
+                  },
                 ]}
               >
                 {item.createdAt}
@@ -188,11 +263,15 @@ export const GridItem = ({ item, onDelete, ...props }) => {
             _={showDelete && selected === item.id}
             _then={
               <View style={[styles.delete]}>
-                <TouchableOpacity onPress={() => setShowDelete(false)}>
+                <TouchableOpacity
+                  flex
+                  center
+                  onPress={() => setShowDelete(false)}
+                >
                   <AntDesign name="back" color="white" size={20} />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={onDelete}>
+                <TouchableOpacity flex center onPress={onDelete}>
                   <AntDesign name="delete" color="white" size={20} />
                 </TouchableOpacity>
               </View>
@@ -202,6 +281,7 @@ export const GridItem = ({ item, onDelete, ...props }) => {
         </View>
       </Pressable>
     </Animated.View>
+    // </PanGestureHandler>
   );
 };
 
@@ -212,12 +292,12 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "medium",
   },
 
   description: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "light",
   },
 
@@ -253,7 +333,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.ERROR,
     padding: 8,
     flexDirection: "row",
-    justifyContent: "space-evenly",
+    justifyContent: "center",
     alignItems: "center",
   },
 
