@@ -4,4 +4,7 @@ export const ACTION_TYPES = {
   TO_APP: "auth/goToApp",
   LOGIN: "auth/userLogin",
   LOGOUT: "auth/userLogout",
+  ADD_NOTES: "notes/addNotes",
+  DELETE_NOTES:"notes/deleteNotes",
+  
 };

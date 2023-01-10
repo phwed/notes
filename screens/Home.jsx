@@ -42,6 +42,7 @@ import { useTheme } from "@react-navigation/native";
 import { useAuthStore } from "../zustand/stores/auth";
 import { NOTE_TYPE } from "../constants/notes";
 import { ROUTES } from "../config/routes";
+import { useNotesStore } from "../zustand/stores/notes";
 
 const { useNotifications } = createNotifications();
 
@@ -49,14 +50,23 @@ const Home = (props) => {
   // HOOKS
   const { changeTheme } = useSettingsStore();
   const appTheme = useSettingsStore((state) => state.appTheme);
+  const notes = useNotesStore((state) => state?.notes);
+  const actionType = useNotesStore((state) => state?.actionType);
+  const deleteNotes = useNotesStore((state) => state?.deleteNotes);
+  const resetActionType = useNotesStore((state) => state?.resetActionType);
   const goToAuth = useAuthStore((state) => state.goToAuth);
   const { notify } = useNotifications();
   const { colors } = useTheme();
 
   // STATES
   const [loading, setLoading] = React.useState(false);
-  const [data, setData] = React.useState(NOTES);
+  const [data, setData] = React.useState();
   const [filter, setFilter] = React.useState("");
+
+  // MOUNT EFFECTS
+  React.useEffect(() => {
+    setData(notes);
+  }, [actionType, notes]);
 
   // REFS
   const list = React.useRef(null);
@@ -75,26 +85,29 @@ const Home = (props) => {
   }, []);
 
   // FUNCTIONS
-  const filteredData = data.filter((item) =>
+  const filteredData = data?.filter((item) =>
     item.type.toLowerCase().includes(filter)
   );
 
   const removeItem = (item) => {
-    setData(
-      data.filter((dataItem) => {
-        return dataItem !== item;
-      })
-    );
-notify('success', {
-  params:{
-    title:"Note deleted successfully"
-  }
-})
-    list.current?.prepareForLayoutAnimationRender();
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+    deleteNotes(item);
   };
 
   // SIDEEFFECTS
+  // alert(actionType)
+
+  React.useEffect(() => {
+    if (actionType === ACTION_TYPES.DELETE_NOTES) {
+      notify("success", {
+        params: {
+          title: "Note deleted successfully",
+        },
+      });
+      list.current?.prepareForLayoutAnimationRender();
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+      resetActionType();
+    }
+  }, [actionType]);
 
   return (
     <Container
@@ -109,32 +122,23 @@ notify('success', {
           Notes
         </Text>
 
-        <View row center>
-          <TouchableOpacity padding-s3 marginR-s2>
-            <MaterialCommunityIcons
-              name="delete-off-outline"
-              color={colors.text}
-              size={25}
-            />
-          </TouchableOpacity>
-          <SwitchWithIcons
-            value={appTheme === "dark" ? true : false}
-            onValueChange={changeTheme}
-            icon={{
-              true: moon,
-              false: sun,
-            }}
-            trackColor={{
-              true: COLORS.CARD_DARK,
-              false: COLORS.GRAY,
-            }}
-            thumbColor={{
-              true: COLORS.WHITE,
-              false: COLORS.WHITE,
-            }}
-            iconColor={{ true: COLORS.DARK, false: COLORS.DARK }}
-          />
-        </View>
+        <SwitchWithIcons
+          value={appTheme === "dark" ? true : false}
+          onValueChange={changeTheme}
+          icon={{
+            true: moon,
+            false: sun,
+          }}
+          trackColor={{
+            true: COLORS.CARD_DARK,
+            false: COLORS.GRAY,
+          }}
+          thumbColor={{
+            true: COLORS.WHITE,
+            false: COLORS.WHITE,
+          }}
+          iconColor={{ true: COLORS.DARK, false: COLORS.DARK }}
+        />
       </View>
 
       {/* SEARCH */}
