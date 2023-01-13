@@ -92,7 +92,7 @@ let store = (set, get) => ({
 });
 
 store = persist(store, {
-  name: "nots",
+  name: "notes",
   storage: createJSONStorage(() => zustandStorage),
 });
 

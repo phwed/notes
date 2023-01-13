@@ -7,7 +7,6 @@ import {
   Button,
   Avatar,
   Incubator,
-  GridList,
   Spacings,
   BorderRadiuses,
 } from "react-native-ui-lib";
@@ -73,7 +72,7 @@ const Home = (props) => {
   const bottomSheetModalRef = React.useRef(null);
 
   // MEMOS
-  const snapPoints = React.useMemo(() => ["50%", "50%"], []);
+  const snapPoints = React.useMemo(() => ["55%", "55%"], []);
 
   // CALLBACKS
   const handlePresentModalPress = React.useCallback(() => {
@@ -94,13 +93,14 @@ const Home = (props) => {
   };
 
   // SIDEEFFECTS
-  // alert(actionType)
-
   React.useEffect(() => {
     if (actionType === ACTION_TYPES.DELETE_NOTES) {
       notify("success", {
         params: {
-          title: "Note deleted successfully",
+          title: "Note deleted",
+        },
+        config: {
+          duration: 300,
         },
       });
       list.current?.prepareForLayoutAnimationRender();
@@ -147,7 +147,7 @@ const Home = (props) => {
         centerV
         marginH-s3
         marginT-s3
-        padding-s1
+        padding-s2
         style={{
           overflow: "hidden",
           borderRadius: 1000,
@@ -164,12 +164,14 @@ const Home = (props) => {
         <View flex paddingH-s4>
           <Input placeholder="Search your notes" />
         </View>
-        <Avatar
-          source={logo}
-          size={45}
-          onPress={() => goToAuth()}
-          backgroundColor={COLORS.WARNING}
-        />
+        <View marginR-s2>
+          <Avatar
+            source={logo}
+            size={35}
+            onPress={() => goToAuth()}
+            backgroundColor={"transparent"}
+          />
+        </View>
       </View>
       {/* BODY */}
       <If
@@ -227,21 +229,34 @@ const Home = (props) => {
 
       {/* BOTTOM SHEET */}
       <BottomSheetModal
+        enableOverDrag={false}
         ref={bottomSheetModalRef}
         index={1}
         snapPoints={snapPoints}
         enableDismissOnClose
         handleStyle={{
           backgroundColor: colors.sheet,
-          borderTopRightRadius: BorderRadiuses.br50,
-          borderTopLeftRadius: BorderRadiuses.br50,
+          borderTopRightRadius: 200,
+          borderTopLeftRadius: 200,
+          borderColor: colors.border,
+        }}
+        handleIndicatorStyle={{
+          backgroundColor: "white",
+        }}
+        backgroundStyle={{
+          backgroundColor: colors.sheet,
+          borderTopRightRadius: 200,
+          borderTopLeftRadius: 200,
         }}
       >
-        <View flex style={{ backgroundColor: colors.sheet }} padding-page>
+        <View
+          flex
+          style={{ backgroundColor: colors.sheet }}
+          padding-page
+          paddingB-s3
+        >
           <View paddingV-s3 paddingH-s1 marginB-s2>
-            <Text textColor style={{ fontSize: 25 }}>
-              Filter
-            </Text>
+            <Text style={{ fontSize: 25, color: COLORS.WHITE }}>Filter</Text>
           </View>
           <TouchableOpacity
             style={{
@@ -259,52 +274,51 @@ const Home = (props) => {
             }}
           >
             <Text
-              textColor
               style={{
                 fontSize: 18,
-                color: filter === "" ? COLORS.TEXT_LIGHT : colors.text,
+                color: COLORS.WHITE,
               }}
             >
               All Notes
             </Text>
           </TouchableOpacity>
 
-          {Object.keys(NOTE_TYPE).map((i, _) => (
-            <TouchableOpacity
-              style={{
-                backgroundColor:
-                  NOTE_TYPE[i] === filter ? COLORS.SUCCESS : null,
-              }}
-              paddingV-s3
-              paddingH-s5
-              br30
-              key={_}
-              marginB-s2
-              onPress={() => {
-                setFilter(NOTE_TYPE[i]);
-                handleCloseModalPress();
-                list.current?.prepareForLayoutAnimationRender();
-                LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-              }}
-            >
-              <Text
-                textColor
+          <View marginB-s5>
+            {Object.keys(NOTE_TYPE).map((i, _) => (
+              <TouchableOpacity
                 style={{
-                  fontSize: 18,
-                  color:
-                    NOTE_TYPE[i] === filter ? COLORS.TEXT_LIGHT : colors.text,
+                  backgroundColor:
+                    NOTE_TYPE[i] === filter ? COLORS.SUCCESS : null,
+                }}
+                paddingV-s3
+                paddingH-s5
+                br30
+                key={_}
+                marginB-s2
+                onPress={() => {
+                  setFilter(NOTE_TYPE[i]);
+                  handleCloseModalPress();
+                  list.current?.prepareForLayoutAnimationRender();
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
                 }}
               >
-                {NOTE_TYPE[i] === NOTE_TYPE.TEXT
-                  ? "Text Notes"
-                  : NOTE_TYPE[i] === NOTE_TYPE.IMAGE
-                  ? "Image Notes"
-                  : NOTE_TYPE[i] === NOTE_TYPE.DOODLE
-                  ? "Doodles"
-                  : "Checklist"}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={{
+                    fontSize: 18,
+                    color: COLORS.WHITE,
+                  }}
+                >
+                  {NOTE_TYPE[i] === NOTE_TYPE.TEXT
+                    ? "Text Notes"
+                    : NOTE_TYPE[i] === NOTE_TYPE.IMAGE
+                    ? "Image Notes"
+                    : NOTE_TYPE[i] === NOTE_TYPE.DOODLE
+                    ? "Doodles"
+                    : "Checklist"}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </BottomSheetModal>
 

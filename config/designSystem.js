@@ -119,7 +119,7 @@ export const getNavigationTheme = (colorMode) => {
       text: COLORS.TEXT_LIGHT,
       border: COLORS.DARK,
       notification: COLORS.PRIMARY,
-      sheet: COLORS.CARD_DARK
+      sheet: COLORS.SHEET_DARK
     },
   };
 
@@ -133,7 +133,7 @@ export const getNavigationTheme = (colorMode) => {
       text: COLORS.TEXT_DARK,
       border: COLORS.WHITE,
       notification: COLORS.PRIMARY,
-      sheet: COLORS.WARNING
+      sheet: COLORS.SHEET_LIGHT
     },
   };
 

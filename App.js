@@ -18,6 +18,7 @@ import {
   getStatusBarStyle,
   configureDesignSystem,
 } from "./config/designSystem";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // providers
 const { NotificationsProvider } = createNotifications(NOTIFICATION);
@@ -46,13 +47,15 @@ export default function App() {
   }
 
   return (
-    <BottomSheetModalProvider>
-      <NotificationsProvider>
-        <View flex onLayout={start}>
-          <StatusBar style={getStatusBarStyle(appTheme)} />
-          <Root />
-        </View>
-      </NotificationsProvider>
-    </BottomSheetModalProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <BottomSheetModalProvider>
+        <NotificationsProvider>
+          <View flex onLayout={start}>
+            <StatusBar style={getStatusBarStyle(appTheme)} />
+            <Root />
+          </View>
+        </NotificationsProvider>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }

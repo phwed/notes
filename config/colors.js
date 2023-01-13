@@ -6,7 +6,7 @@ export const COLORS = {
   ORANGE: "#FF7746",
   DARK: "#0F121B",
   CARD_DARK: "#171C26",
-  CARD_LIGHT: "#d4d4d4",
+  CARD_LIGHT: "#F2E6C2",
   WHITE: "#FFFFFF",
   GRAY: "#D1D5DB",
   LIGTH_GRAY: "#424242",
@@ -18,4 +18,6 @@ export const COLORS = {
   WARNING: "#F2E6C2",
   ERROR: "#F6959D",
   PLACEHOLDER_TEXT: "#4A5261",
+  SHEET_LIGHT: "#4A5261",
+  SHEET_DARK: "#4A5261",
 };
