@@ -71,7 +71,7 @@ let store = (set, get) => ({
       color: COLORS.HOT_PINK,
     },
   ],
-  actionType: "test",
+  actionType: "",
 
   // actions
   addNotes: () =>
@@ -79,10 +79,10 @@ let store = (set, get) => ({
       actionType: ACTION_TYPES.ADD_NOTES,
     })),
 
-  deleteNotes: (item) =>
+  deleteNotes: (id) =>
     set((state) => ({
       actionType: ACTION_TYPES.DELETE_NOTES,
-      notes: state.notes.filter((dataItem) => dataItem !== item),
+      notes: state.notes.filter((dataItem) => dataItem.id !== id),
     })),
 
   resetActionType: () =>

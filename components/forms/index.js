@@ -24,7 +24,13 @@ export const Input = ({ placeholder, value, onChangeText, ...props }) => {
   );
 };
 
-export const TitleInput = ({ placeholder, value, onChangeText, ...props }) => {
+export const TitleInput = ({
+  placeholder,
+  value,
+  onChangeText,
+  color,
+  ...props
+}) => {
   const { colors } = useTheme();
   const appTheme = useSettingsStore((state) => state.appTheme);
 
@@ -37,7 +43,11 @@ export const TitleInput = ({ placeholder, value, onChangeText, ...props }) => {
       placeholderTextColor={COLORS.PLACEHOLDER_TEXT}
       selectionColor={colors.text}
       style={{
-        color: appTheme === "dark" ? COLORS.TEXT_LIGHT : COLORS.TEXT_DARK,
+        color: color
+          ? color
+          : appTheme === "dark"
+          ? COLORS.TEXT_LIGHT
+          : COLORS.TEXT_DARK,
         fontFamily: "bold",
         fontSize: 40,
       }}
@@ -49,6 +59,7 @@ export const DescriptionInput = ({
   placeholder,
   value,
   onChangeText,
+  color,
   ...props
 }) => {
   const { colors } = useTheme();
@@ -64,10 +75,14 @@ export const DescriptionInput = ({
       selectionColor={colors.text}
       multiline
       style={{
-        color: appTheme === "dark" ? COLORS.TEXT_LIGHT : COLORS.TEXT_DARK,
+        color: color
+          ? color
+          : appTheme === "dark"
+          ? COLORS.TEXT_LIGHT
+          : COLORS.TEXT_DARK,
         fontFamily: "regular",
         fontSize: 18,
-        paddingVertical:3
+        paddingVertical: 3,
       }}
     />
   );

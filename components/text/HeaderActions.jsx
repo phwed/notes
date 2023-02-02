@@ -7,10 +7,19 @@ import {
   Spacings,
   BorderRadiuses,
 } from "react-native-ui-lib";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
+import { If } from "@kanzitelli/if-component";
+import { Iconsax } from "../../components/icons/Iconsax";
 
-export const HeaderActions = ({ onBack, onUndo, onRedo, onSave, color }) => {
+export const HeaderActions = ({
+  onMore,
+  onBack,
+  onUndo,
+  onRedo,
+  onSave,
+  color,
+}) => {
   const { colors } = useTheme();
 
   const IconButton = ({ name, onPress, spacer, color }) => {
@@ -25,18 +34,23 @@ export const HeaderActions = ({ onBack, onUndo, onRedo, onSave, color }) => {
         ]}
         onPress={onPress}
       >
-        <MaterialCommunityIcons name={name} size={20} color={color} />
+        <If
+          _={name === "check"}
+          _then={<MaterialCommunityIcons name={name} size={20} color={color} />}
+          _else={<Iconsax name={name} size={20} color={color} />}
+        />
       </TouchableOpacity>
     );
   };
 
   return (
     <View style={styles.container}>
-      <IconButton name="chevron-left" onPress={onBack} color={color} />
+      <IconButton name="icon-arrow-left-2" onPress={onBack} color={color} />
 
       <View style={styles.groupRow}>
-        <IconButton name="undo-variant" spacer onPress={onUndo} color={color} />
-        <IconButton name="redo-variant" spacer onPress={onRedo} color={color} />
+        <IconButton name="icon-more" spacer onPress={onMore} color={color} />
+        <IconButton name="icon-undo" spacer onPress={onUndo} color={color} />
+        <IconButton name="icon-redo" spacer onPress={onRedo} color={color} />
         <IconButton name="check" onPress={onSave} color={color} />
       </View>
     </View>
@@ -49,7 +63,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: Spacings.s4,
-    paddingTop: Spacings.s2
+    paddingTop: Spacings.s2,
   },
 
   groupRow: {

@@ -42,6 +42,7 @@ import { useAuthStore } from "../zustand/stores/auth";
 import { NOTE_TYPE } from "../constants/notes";
 import { ROUTES } from "../config/routes";
 import { useNotesStore } from "../zustand/stores/notes";
+import { Iconsax } from "../components/icons/Iconsax";
 
 const { useNotifications } = createNotifications();
 
@@ -88,8 +89,8 @@ const Home = (props) => {
     item.type.toLowerCase().includes(filter)
   );
 
-  const removeItem = (item) => {
-    deleteNotes(item);
+  const removeItem = (id) => {
+    deleteNotes(id);
   };
 
   // SIDEEFFECTS
@@ -100,7 +101,7 @@ const Home = (props) => {
           title: "Note deleted",
         },
         config: {
-          duration: 300,
+          duration: 800,
         },
       });
       list.current?.prepareForLayoutAnimationRender();
@@ -155,8 +156,8 @@ const Home = (props) => {
         }}
       >
         <TouchableOpacity paddingL-10 onPress={handlePresentModalPress}>
-          <FontAwesome
-            name="sliders"
+          <Iconsax
+            name="icon-setting-3"
             size={25}
             color={appTheme === "dark" ? COLORS.TEXT_LIGHT : COLORS.TEXT_DARK}
           />
@@ -194,14 +195,16 @@ const Home = (props) => {
                 <GridItem
                   item={item}
                   index={index}
-                  onDelete={() => removeItem(item)}
+                  onDelete={() => removeItem(item.id)}
                   onMove={() => {
-                    removeItem(item);
+                    removeItem(item.id);
                   }}
                   onItemPress={() => {
                     switch (item.type) {
                       case NOTE_TYPE.TEXT:
-                        props.navigation.navigate(ROUTES.TEXT_NOTES);
+                        props.navigation.navigate(ROUTES.TEXT_NOTES, {
+                          ...item,
+                        });
                         break;
                       case NOTE_TYPE.DOODLE:
                         props.navigation.navigate(ROUTES.DOODLES);
